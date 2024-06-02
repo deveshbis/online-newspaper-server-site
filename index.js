@@ -52,6 +52,16 @@ async function run() {
     })
 
 
+    //Publisher Collection
+    const publisherCollection = client.db("newspaperDB").collection("publisher") 
+
+    app.post('/publisher', async (req, res) => {
+        const publisherArticles = req.body;
+        console.log(publisherArticles);
+        const result = await publisherCollection.insertOne(publisherArticles);
+        res.send(result);
+    })
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");

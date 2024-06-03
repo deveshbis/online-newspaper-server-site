@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express()
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 require('dotenv').config()
 const port = process.env.PORT || 5000;
 
@@ -27,6 +28,36 @@ async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
         // await client.connect();
+
+        //middleware
+        const verfifyToken = (req, res, next) => {
+            console.log("inside verify token", req.headers.authorization);
+            if (!req.headers.authorization) {
+                return res.status(401).send({ message: 'forbidden access' })
+            }
+            const token = req.headers.authorization.split(' ')[1];
+            jwt.verify(token, process.env.ACCESS_TOKEN_SECRTE, (err, decoded) => {
+                if (err) {
+                    return res.status(401).send({ message: "forbidden access" })
+                }
+                req.decoded = decoded;
+                next();
+            })
+        }
+
+        //jwt 
+
+        app.post("/jwt", async (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRTE, {
+                expiresIn: "365d"
+            })
+            res.send({ token })
+        })
+
+
+
+
 
         // articles collection
         const articleCollection = client.db("newspaperDB").collection("articles")
@@ -55,7 +86,7 @@ async function run() {
         //users Collection
         const userCollection = client.db("newspaperDB").collection("users")
 
-        app.get("/users", async (req, res) => {
+        app.get("/users", verfifyToken, async (req, res) => {
             const result = await userCollection.find().toArray()
             res.send(result)
         })
@@ -71,17 +102,17 @@ async function run() {
             res.send(result)
         })
 
-        app.patch("/users/admin/:id",  async (req, res) => {
+        app.patch("/users/admin/:id", async (req, res) => {
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) }
             const updatedDoc = {
-              $set: {
-                role: 'admin'
-              }
+                $set: {
+                    role: 'admin'
+                }
             }
             const result = await userCollection.updateOne(filter, updatedDoc)
             res.send(result)
-          })
+        })
 
 
 

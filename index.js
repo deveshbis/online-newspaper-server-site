@@ -152,9 +152,6 @@ async function run() {
 
 
 
-
-
-
         //Admin Publisher
         const adminPublisherCollection = client.db("newspaperDB").collection("adminPublisher")
 
@@ -167,6 +164,24 @@ async function run() {
             const adminPublisherArticles = req.body;
             console.log(adminPublisherArticles);
             const result = await adminPublisherCollection.insertOne(adminPublisherArticles);
+            res.send(result);
+        })
+
+
+
+
+        //Admin Publisher
+        const userPublisherCollection = client.db("newspaperDB").collection("publisher")
+
+        app.get("/userPublisher", verifyToken,  async (req, res) => {
+            const result = await userPublisherCollection.find().toArray()
+            res.send(result)
+        })
+
+        app.post('/userPublisher', verifyToken, async (req, res) => {
+            const userPublisherArticles = req.body;
+            console.log(userPublisherArticles);
+            const result = await userPublisherCollection.insertOne(userPublisherArticles);
             res.send(result);
         })
 

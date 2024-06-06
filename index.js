@@ -125,6 +125,15 @@ async function run() {
         })
 
 
+        //optional
+        app.delete('/users/:id', verifyToken, verifyAdmin, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await userCollection.deleteOne(query);
+            res.send(result);
+          })
+      
+
 
 
 
@@ -155,7 +164,7 @@ async function run() {
         //Admin Publisher
         const adminPublisherCollection = client.db("newspaperDB").collection("adminPublisher")
 
-        app.get("/adminPublisher", verifyToken,  async (req, res) => {
+        app.get("/adminPublisher",  async (req, res) => {
             const result = await adminPublisherCollection.find().toArray()
             res.send(result)
         })
@@ -185,9 +194,19 @@ async function run() {
             res.send(result);
         })
 
+        app.get('/myPublisher/:email', verifyToken, async (req, res) => {
+            // const tokenEmail = req.user.email
+            const email = req.params.email
+            // if (tokenEmail !== email) {
+            //   return res.status(403).send({ message: 'forbidden access' })
+            // }
+            const query = { authorEmail: email }
+            const result = await userPublisherCollection.find(query).toArray()
+            res.send(result)
+          })
 
 
-        // Send a ping to confirm a successful connection
+        // // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {

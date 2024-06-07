@@ -187,6 +187,13 @@ async function run() {
             res.send(result)
         })
 
+        app.get('/userPublisher/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await userPublisherCollection.findOne(query);
+            res.send(result);
+        })
+
         app.post('/userPublisher', verifyToken, async (req, res) => {
             const userPublisherArticles = req.body;
             console.log(userPublisherArticles);
@@ -218,22 +225,43 @@ async function run() {
             res.send(result);
         })
 
-        app.put('/updateData/:id', async (req, res) => {
+
+
+        app.patch('/userPublisher/:id', async (req, res) => {
+            const item = req.body;
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) }
-            const options = { upsert: true };
-            const updatedArticle = req.body;
-
-            const article = {
+            const updatedDoc = {
                 $set: {
-                    title: updatedArticle.title,
-                    description: updatedArticle.description,
-                    publisher: updatedArticle.publisher
+                    title: item.title,
+                    publisher: item.publisher,
+                    description: item.description,
+                    recipe: item.recipe,
+                    image: item.image
                 }
             }
-            const result = await userPublisherCollection.updateOne(filter, article, options);
+
+            const result = await userPublisherCollection.updateOne(filter, updatedDoc)
             res.send(result);
         })
+
+        // app.put('/updateData/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     const filter = { _id: new ObjectId(id) }
+        //     const options = { upsert: true };
+        //     const updatedArticle = req.body;
+
+        //     const article = {
+        //         $set: {
+        //             title: updatedArticle.title,
+        //             description: updatedArticle.description,
+        //             publisher: updatedArticle.publisher
+        //         }
+        //     }
+        //     const result = await userPublisherCollection.updateOne(filter, article, options);
+        //     res.send(result);
+        // })
+
 
 
         // // Send a ping to confirm a successful connection

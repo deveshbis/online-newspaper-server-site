@@ -131,8 +131,8 @@ async function run() {
             const query = { _id: new ObjectId(id) }
             const result = await userCollection.deleteOne(query);
             res.send(result);
-          })
-      
+        })
+
 
 
 
@@ -164,7 +164,7 @@ async function run() {
         //Admin Publisher
         const adminPublisherCollection = client.db("newspaperDB").collection("adminPublisher")
 
-        app.get("/adminPublisher",  async (req, res) => {
+        app.get("/adminPublisher", async (req, res) => {
             const result = await adminPublisherCollection.find().toArray()
             res.send(result)
         })
@@ -182,7 +182,7 @@ async function run() {
         //Admin Publisher
         const userPublisherCollection = client.db("newspaperDB").collection("publisher")
 
-        app.get("/userPublisher", verifyToken,  async (req, res) => {
+        app.get("/userPublisher", verifyToken, async (req, res) => {
             const result = await userPublisherCollection.find().toArray()
             res.send(result)
         })
@@ -203,7 +203,37 @@ async function run() {
             const query = { authorEmail: email }
             const result = await userPublisherCollection.find(query).toArray()
             res.send(result)
-          })
+        })
+
+        app.get('/myArticleDetails/:id', verifyToken, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await userPublisherCollection.findOne(query);
+            res.send(result);
+        })
+        app.delete('/articles/:id', verifyToken, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await userPublisherCollection.deleteOne(query);
+            res.send(result);
+        })
+
+        app.put('/updateData/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) }
+            const options = { upsert: true };
+            const updatedArticle = req.body;
+
+            const article = {
+                $set: {
+                    title: updatedArticle.title,
+                    description: updatedArticle.description,
+                    publisher: updatedArticle.publisher
+                }
+            }
+            const result = await userPublisherCollection.updateOne(filter, article, options);
+            res.send(result);
+        })
 
 
         // // Send a ping to confirm a successful connection
